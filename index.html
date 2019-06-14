@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>PostgreSQL indices</title>
+
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/custom.css" />
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/monokai.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+                <section><h2>Introduction to PostgreSQL indices</h2></section>
+
+				<section><h2>How is data stored in PostgreSQL?</h2></section>
+
+				<section>
+					<h3>How is data stored in PostgreSQL</h3>
+
+					<ul>
+						<li>A table is divided into fixed length <b>blocks</b></li>
+						<li><b>Blocks</b> are numbered starting from 0</li>
+						<li>Each <b>block</b> contains a number of <b>heap tuples</b></li>
+						<li>A single <b>heap tuple</b> contains the data of a single row</li>
+						<li>A row is identified by <b>tuple identifier (TID)</b></li>
+						<li><b>TID</b> consists of (block number, offset number)</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>How is data stored in PostgreSQL</h3>
+
+					<img src="images/psql-data-files.png" alt="">
+				</section>
+
+				<section><h2>What is an index?</h2></section>
+
+				<section>
+					<h3>What is an index?</h3>
+
+					<ul>
+						<li>Data structure</li>
+						<li>A mapping from key to row (TID)</li>
+						<li>Speed up data access</li>
+						<li>Enforce integrity constraints</li>
+						<li>Has a maintenance cost</li>
+					</ul>
+				</section>
+
+				<section><h2>How are they used?</h2></section>
+
+				<section>
+					<h3>How are they used?</h3>
+
+					<ul>
+						<li>In queries (SELECT)</li>
+						<li>DBs have multiple scanning techniques</li>
+						<li>Query planner decides based on cost estimate how it is executed</li>
+						<li>Query executor executes the plan</li>
+					</ul>
+				</section>
+
+				<section><h2>Scanning techniques</h2></section>
+				
+				<section>
+					<h3>Scanning techniques</h3>
+
+					<ul>
+						<li>Sequential scan</li>
+						<li>Index scan</li>
+						<li>Bitmap scan</li>
+						<li>Index-only scan</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Sequential scan</h3>
+
+					<div class="left">
+						<img src="images/sequential-scan.png" alt="" style="max-height: 500px;">
+					</div>
+
+					<div class="right">
+						<ul>
+							<li>Table is scanned block by block, row by row</li>
+							<li>Preferred with non-selective conditions</li>
+							<li>I/O is sequential</li>
+						</ul>
+					</div>
+				</section>
+
+				<section>
+					<h3>Index scan</h3>
+
+					<div class="left">
+						<img src="images/index-scan.png" alt="" style="max-height: 500px;">
+					</div>
+
+					<div class="right">
+						<ul>
+							<li>Index is searched with key to get TID</li>
+							<li>TID is used to get row data</li>
+							<li>Optimal when dealing with few values</li>
+							<li>I/O is random</li>
+						</ul>
+					</div>
+
+				</section>
+
+				<section>
+					<h3>Bitmap scan</h3>
+
+					<div class="left">
+						<img src="images/bitmap-scan.png" alt="" style="max-height: 500px;">
+					</div>
+
+					<div class="right">
+						<ul>
+							<li>More rows -> more likely to hit same block</li>
+							<li>First return all TIDs that match the condition</li>
+							<li>A bitmap is built from these TIDs</li>
+							<li>Rows are read, each block is accessed only once</li>
+							<li>I/O is sequential</li>
+						</ul>
+					</div>
+				</section>
+
+				<section>
+					<h3>Index-only scan</h3>
+
+					<div class="left">
+							<img src="images/index-only-scan.png" alt="" style="max-height: 500px;">
+						</div>
+	
+						<div class="right">
+							<ul>
+								<li>Data is gotten from index</li>
+								<li>No table I/O required</li>
+							</ul>
+						</div>
+				</section>
+
+				<section>
+					<h3>Resources</h3>
+
+					<p><a href="https://habr.com/en/company/postgrespro/blog/441962/">Indexes in PostgreSQL</a></p>
+					<p><a href="http://www.interdb.jp/pg/index.html">Internals of PostgreSQL</a></p>
+				</section>
+<!--
+				- What are indices?
+					- Data structures
+					- Speed up data access
+					- Enforce integrity constraints
+					- Associate a key to a row (Tuple ID, TID)
+					- Has maintenance cost, all updates to table rows need to be updated to indices as well, in the same transaction
+				- How do they work?
+					- Scanning methods:
+						- Sequential scan
+							- Scan each row one-by-one
+							- More rows to read, more overhead to read index pages
+						- Index scan
+						- Bitmap scan
+				- Types of indices
+					- Hash
+					- B-tree
+					- GiST, SP-GiST
+					- GIN
+					- RUM
+ -->
+			</div>
+		</div>
+
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+            Reveal.initialize({
+                controls: true,
+                history: true,
+                dependencies: [
+                    { src: "plugin/markdown/marked.js" },
+                    { src: "plugin/markdown/markdown.js" },
+                    { src: "plugin/notes/notes.js", async: true },
+                    {
+                        src: "plugin/highlight/highlight.js",
+                        async: true,
+                        callback: function() {
+                            hljs.initHighlightingOnLoad();
+                        }
+                    }
+				],
+				// The "normal" size of the presentation, aspect ratio will be preserved
+				// when the presentation is scaled to fit different resolutions. Can be
+				// specified using percentage units.
+				width: 960,
+				height: 700,
+
+				// Factor of the display size that should remain empty around the content
+				margin: 0.1,
+
+				// Bounds for smallest/largest possible scale to apply to content
+				minScale: 0.2,
+				maxScale: 1.5
+            });
+		</script>
+	</body>
+</html>
