@@ -1,174 +1,344 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
 
-		<title>PostgreSQL indices</title>
+    <title>PostgreSQL indexes</title>
 
-		<link rel="stylesheet" href="css/reset.css">
-		<link rel="stylesheet" href="css/reveal.css">
-        <link rel="stylesheet" href="css/custom.css" />
-		<link rel="stylesheet" href="css/theme/black.css">
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/reveal.css" />
+    <link rel="stylesheet" href="css/custom.css" />
+    <link rel="stylesheet" href="css/theme/black.css" />
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/monokai.css">
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/monokai.css" />
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-                <section><h2>Introduction to PostgreSQL indices</h2></section>
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.type = "text/css";
+      link.href = window.location.search.match(/print-pdf/gi)
+        ? "css/print/pdf.css"
+        : "css/print/paper.css";
+      document.getElementsByTagName("head")[0].appendChild(link);
+    </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section><h2>Introduction to PostgreSQL indexes</h2></section>
 
-				<section><h2>How is data stored in PostgreSQL?</h2></section>
+        <section><h2>How is data stored in PostgreSQL?</h2></section>
 
-				<section>
-					<h3>How is data stored in PostgreSQL</h3>
+        <section>
+          <h3>How is data stored in PostgreSQL</h3>
 
-					<ul>
-						<li>A table is divided into fixed length <b>blocks</b></li>
-						<li><b>Blocks</b> are numbered starting from 0</li>
-						<li>Each <b>block</b> contains a number of <b>heap tuples</b></li>
-						<li>A single <b>heap tuple</b> contains the data of a single row</li>
-						<li>A row is identified by <b>tuple identifier (TID)</b></li>
-						<li><b>TID</b> consists of (block number, offset number)</li>
-					</ul>
-				</section>
+          <ul>
+            <li>A table is divided into fixed length <b>blocks</b></li>
+            <li><b>Blocks</b> are numbered starting from 0</li>
+            <li>Each <b>block</b> contains a number of <b>heap tuples</b></li>
+            <li>
+              A single <b>heap tuple</b> contains the data of a single row
+            </li>
+            <li>A row is identified by <b>tuple identifier (TID)</b></li>
+            <li><b>TID</b> consists of (block number, offset number)</li>
+          </ul>
+        </section>
 
-				<section>
-					<h3>How is data stored in PostgreSQL</h3>
+        <section>
+          <h3>How is data stored in PostgreSQL</h3>
 
-					<img src="images/psql-data-files.png" alt="">
-				</section>
+          <img src="images/psql-data-files.png" alt="" />
+        </section>
 
-				<section><h2>What is an index?</h2></section>
+        <section><h2>What is an index?</h2></section>
 
-				<section>
-					<h3>What is an index?</h3>
+        <section>
+          <h3>What is an index?</h3>
 
-					<ul>
-						<li>Data structure</li>
-						<li>A mapping from key to row (TID)</li>
-						<li>Speed up data access</li>
-						<li>Enforce integrity constraints</li>
-						<li>Has a maintenance cost</li>
-					</ul>
-				</section>
+          <ul>
+            <li>Data structure</li>
+            <li>A mapping from key to row (TID)</li>
+            <li>Speed up data access</li>
+            <li>Enforce integrity constraints</li>
+            <li>Has a maintenance cost</li>
+          </ul>
+        </section>
 
-				<section><h2>How are they used?</h2></section>
+        <section><h2>How are they used?</h2></section>
 
-				<section>
-					<h3>How are they used?</h3>
+        <section>
+          <h3>How are they used?</h3>
 
-					<ul>
-						<li>In queries (SELECT)</li>
-						<li>DBs have multiple scanning techniques</li>
-						<li>Query planner decides based on cost estimate how it is executed</li>
-						<li>Query executor executes the plan</li>
-					</ul>
-				</section>
+          <ul>
+            <li>In queries (SELECT)</li>
+            <li>DBs have multiple scanning techniques</li>
+            <li>
+              Query planner decides based on cost estimate how it is executed
+            </li>
+            <li>Query executor executes the plan</li>
+          </ul>
+        </section>
 
-				<section><h2>Scanning techniques</h2></section>
-				
-				<section>
-					<h3>Scanning techniques</h3>
+        <section><h2>Scanning techniques</h2></section>
 
-					<ul>
-						<li>Sequential scan</li>
-						<li>Index scan</li>
-						<li>Bitmap scan</li>
-						<li>Index-only scan</li>
-					</ul>
-				</section>
+        <!-- Scanning techniques -->
+        <section>
+          <h3>Scanning techniques</h3>
 
-				<section>
-					<h3>Sequential scan</h3>
+          <ul>
+            <li>Sequential scan</li>
+            <li>Index scan</li>
+            <li>Bitmap scan</li>
+            <li>Index-only scan</li>
+          </ul>
+        </section>
 
-					<div class="left">
-						<img src="images/sequential-scan.png" alt="" style="max-height: 500px;">
-					</div>
+        <!-- Sequence scan -->
+        <section>
+          <h3>Sequential scan</h3>
 
-					<div class="right">
-						<ul>
-							<li>Table is scanned block by block, row by row</li>
-							<li>Preferred with non-selective conditions</li>
-							<li>I/O is sequential</li>
-						</ul>
-					</div>
-				</section>
+          <div class="left">
+            <img
+              src="images/sequential-scan.png"
+              alt=""
+              style="max-height: 500px;"
+            />
+          </div>
 
-				<section>
-					<h3>Index scan</h3>
+          <div class="right">
+            <ul>
+              <li>Table is scanned block by block, row by row</li>
+              <li>Preferred with non-selective conditions</li>
+              <li>I/O is sequential</li>
+            </ul>
+          </div>
+        </section>
 
-					<div class="left">
-						<img src="images/index-scan.png" alt="" style="max-height: 500px;">
-					</div>
+        <!-- Index scan -->
+        <section>
+          <h3>Index scan</h3>
 
-					<div class="right">
-						<ul>
-							<li>Index is searched with key to get TID</li>
-							<li>TID is used to get row data</li>
-							<li>Optimal when dealing with few values</li>
-							<li>I/O is random</li>
-						</ul>
-					</div>
+          <div class="left">
+            <img
+              src="images/index-scan.png"
+              alt=""
+              style="max-height: 500px;"
+            />
+          </div>
 
-				</section>
+          <div class="right">
+            <ul>
+              <li>Index is searched with key to get TID</li>
+              <li>TID is used to get row data</li>
+              <li>Optimal when dealing with few values</li>
+              <li>I/O is random</li>
+            </ul>
+          </div>
+        </section>
 
-				<section>
-					<h3>Bitmap scan</h3>
+        <!-- Bitmap scan -->
+        <section>
+          <h3>Bitmap scan</h3>
 
-					<div class="left">
-						<img src="images/bitmap-scan.png" alt="" style="max-height: 500px;">
-					</div>
+          <div class="left">
+            <img
+              src="images/bitmap-scan.png"
+              alt=""
+              style="max-height: 500px;"
+            />
+          </div>
 
-					<div class="right">
-						<ul>
-							<li>More rows -> more likely to hit same block</li>
-							<li>First return all TIDs that match the condition</li>
-							<li>A bitmap is built from these TIDs</li>
-							<li>Rows are read, each block is accessed only once</li>
-							<li>I/O is sequential</li>
-						</ul>
-					</div>
-				</section>
+          <div class="right">
+            <ul>
+              <li>More rows -> more likely to hit same block</li>
+              <li>First return all TIDs that match the condition</li>
+              <li>A bitmap is built from these TIDs</li>
+              <li>Rows are read, each block is accessed only once</li>
+              <li>I/O is sequential</li>
+            </ul>
+          </div>
+        </section>
 
-				<section>
-					<h3>Index-only scan</h3>
+        <!-- Index only scan -->
+        <section>
+          <h3>Index-only scan</h3>
 
-					<div class="left">
-							<img src="images/index-only-scan.png" alt="" style="max-height: 500px;">
-						</div>
-	
-						<div class="right">
-							<ul>
-								<li>Data is gotten from index</li>
-								<li>No table I/O required</li>
-							</ul>
-						</div>
-				</section>
+          <div class="left">
+            <img
+              src="images/index-only-scan.png"
+              alt=""
+              style="max-height: 500px;"
+            />
+          </div>
 
-				<section>
-					<h3>Resources</h3>
+          <div class="right">
+            <ul>
+              <li>Data is gotten from index</li>
+              <li>No table I/O required</li>
+            </ul>
+          </div>
+        </section>
 
-					<p><a href="https://habr.com/en/company/postgrespro/blog/441962/">Indexes in PostgreSQL</a></p>
-					<p><a href="http://www.interdb.jp/pg/index.html">Internals of PostgreSQL</a></p>
-				</section>
-<!--
-				- What are indices?
+        <section><h2>Types of indexes</h2></section>
+
+        <section>
+          <h3>Types of indexes</h3>
+
+          <ul>
+            <li>B-tree</li>
+            <li>GiST, SP-GiST</li>
+            <li>GIN, RUM</li>
+            <li>BRIN</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>B-tree</h3>
+
+          <div class="left">
+            <img src="images/btree.png" alt="" />
+          </div>
+
+          <div class="right">
+            <ul>
+              <li>Default index type</li>
+              <li>
+                Suitable for sortable data (data is stored in sorted order)
+              </li>
+              <li>Supports NULLs</li>
+              <li>Order columns matter</li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h3>B-tree, search by equality</h3>
+
+          <img src="images/btree-search-by-equality.png" alt="" />
+
+          <p><i>key = 49</i></p>
+        </section>
+
+        <section>
+          <h3>B-tree, search by inequality</h3>
+
+          <img src="images/btree-search-by-inequality.png" alt="" />
+
+          <p><i>key <= 35</i></p>
+        </section>
+
+        <section>
+          <h3>Other index types</h3>
+
+          <table>
+            <tbody>
+              <tr>
+                <td>GiST, SP-GiST</td>
+                <td>
+                  For non-sortable data (geodata, text documents, images)
+                </td>
+              </tr>
+              <tr>
+                <td>GIN, RUM</td>
+                <td>For speeding up full-text search</td>
+              </tr>
+              <tr>
+                <td>BRIN</td>
+                <td>
+                  For values that correlate with their physical location in the
+                  table (e.g. time-series). Inaccurate, but much smaller index
+                  size.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section><h2>Index features</h2></section>
+
+        <section>
+          <h3>Multicolumn indexes</h3>
+
+          <pre>
+						<code class="sql" data-trim data-noescape>CREATE INDEX ON t(a, b);
+
+-- These can use the index
+SELECT * FROM t WHERE a = 100 AND b = 'john';
+SELECT * FROM t WHERE a = 100;
+
+-- This can't
+SELECT * FROM t WHERE b = 'john';
+						</code>
+					</pre>
+        </section>
+
+        <section>
+          <h3>Indexes on expressions</h3>
+
+          <pre>
+						<code class="sql" data-trim data-noescape>CREATE INDEX ON t(lower(b));
+
+-- This can now use the index
+SELECT * FROM t WHERE lower(b) = 'john';
+						</code>
+					</pre>
+        </section>
+
+        <section>
+          <h3>Partial indexes</h3>
+
+          <p>Can be used to reduce the index size</p>
+          <p>Useful for data with highly non-uniform distribution</p>
+
+          <pre>
+						<code class="sql" data-trim data-noescape>
+-- Assume c is true for 1% of rows, and false for 99%
+-- This will use sequence scan, even if there's an index
+SELECT * FROM t WHERE NOT c;
+
+-- Index size is drastically reduced with the condition
+CREATE INDEX ON t(c) WHERE c = TRUE;
+
+-- This will use the index
+SELECT * FROM t WHERE c;
+						</code>
+					</pre>
+        </section>
+
+        <section>
+          <h3>Resources</h3>
+
+          <p>
+            <a href="https://habr.com/en/company/postgrespro/blog/441962/"
+              >Indexes in PostgreSQL</a
+            >
+          </p>
+          <p>
+            <a href="http://www.interdb.jp/pg/index.html"
+              >Internals of PostgreSQL</a
+            >
+          </p>
+        </section>
+
+        <!-- Thanks -->
+        <section>
+          <h2>Thank you!</h2>
+
+          <h2>Questions?</h2>
+        </section>
+        <!--
+				- What are indexes?
 					- Data structures
 					- Speed up data access
 					- Enforce integrity constraints
 					- Associate a key to a row (Tuple ID, TID)
-					- Has maintenance cost, all updates to table rows need to be updated to indices as well, in the same transaction
+					- Has maintenance cost, all updates to table rows need to be updated to indexes as well, in the same transaction
 				- How do they work?
 					- Scanning methods:
 						- Sequential scan
@@ -176,50 +346,49 @@
 							- More rows to read, more overhead to read index pages
 						- Index scan
 						- Bitmap scan
-				- Types of indices
+				- Types of indexes
 					- Hash
 					- B-tree
 					- GiST, SP-GiST
-					- GIN
-					- RUM
+					- GIN, RUM
  -->
-			</div>
-		</div>
+      </div>
+    </div>
 
-		<script src="js/reveal.js"></script>
+    <script src="js/reveal.js"></script>
 
-		<script>
-			// More info about config & dependencies:
-			// - https://github.com/hakimel/reveal.js#configuration
-			// - https://github.com/hakimel/reveal.js#dependencies
-            Reveal.initialize({
-                controls: true,
-                history: true,
-                dependencies: [
-                    { src: "plugin/markdown/marked.js" },
-                    { src: "plugin/markdown/markdown.js" },
-                    { src: "plugin/notes/notes.js", async: true },
-                    {
-                        src: "plugin/highlight/highlight.js",
-                        async: true,
-                        callback: function() {
-                            hljs.initHighlightingOnLoad();
-                        }
-                    }
-				],
-				// The "normal" size of the presentation, aspect ratio will be preserved
-				// when the presentation is scaled to fit different resolutions. Can be
-				// specified using percentage units.
-				width: 960,
-				height: 700,
+    <script>
+      // More info about config & dependencies:
+      // - https://github.com/hakimel/reveal.js#configuration
+      // - https://github.com/hakimel/reveal.js#dependencies
+      Reveal.initialize({
+        controls: true,
+        history: true,
+        dependencies: [
+          { src: "plugin/markdown/marked.js" },
+          { src: "plugin/markdown/markdown.js" },
+          { src: "plugin/notes/notes.js", async: true },
+          {
+            src: "plugin/highlight/highlight.js",
+            async: true,
+            callback: function() {
+              hljs.initHighlightingOnLoad();
+            }
+          }
+        ],
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 960,
+        height: 700,
 
-				// Factor of the display size that should remain empty around the content
-				margin: 0.1,
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
 
-				// Bounds for smallest/largest possible scale to apply to content
-				minScale: 0.2,
-				maxScale: 1.5
-            });
-		</script>
-	</body>
+        // Bounds for smallest/largest possible scale to apply to content
+        minScale: 0.2,
+        maxScale: 1.5
+      });
+    </script>
+  </body>
 </html>
