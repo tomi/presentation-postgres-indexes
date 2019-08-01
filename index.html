@@ -31,29 +31,33 @@
   <body>
     <div class="reveal">
       <div class="slides">
-        <section><h2>Introduction to PostgreSQL indexes</h2></section>
+        <section>
+          <h2>Introduction to PostgreSQL indexes</h2>
+
+          by <a href="http://twitter.com/TomiTurtiainen">@TomiTurtiainen</a>
+        </section>
 
         <section><h2>How is data stored in PostgreSQL?</h2></section>
 
         <section>
-          <h3>How is data stored in PostgreSQL</h3>
+          <img src="images/psql-data-files.png" alt="" />
 
-          <ul>
-            <li>A table is divided into fixed length <b>blocks</b></li>
-            <li><b>Blocks</b> are numbered starting from 0</li>
-            <li>Each <b>block</b> contains a number of <b>heap tuples</b></li>
-            <li>
-              A single <b>heap tuple</b> contains the data of a single row
-            </li>
-            <li>A row is identified by <b>tuple identifier (TID)</b></li>
-            <li><b>TID</b> consists of (block number, offset number)</li>
-          </ul>
+          <p>A table is divided into fixed length <b>blocks</b></p>
+          <p><b>Blocks</b> are numbered starting from 0</p>
         </section>
 
         <section>
-          <h3>How is data stored in PostgreSQL</h3>
-
           <img src="images/psql-data-files.png" alt="" />
+
+          <p>Each <b>block</b> contains a number of <b>heap tuples</b></p>
+          <p>A single <b>heap tuple</b> contains the data of a single row</p>
+        </section>
+
+        <section>
+          <img src="images/psql-data-files.png" alt="" />
+
+          <p>A row is identified by <b>tuple identifier (TID)</b></p>
+          <p><b>TID</b> consists of (block number, offset number)</p>
         </section>
 
         <section><h2>What is an index?</h2></section>
